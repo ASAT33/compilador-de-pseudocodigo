@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sandbox de Pseudocódigo</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #fff;
+      --tx: #1b2430;
+      --mu: #5d6b7c;
+      --ac: #2f5bea;
+      --bd: #d9dfe9;
+      --ok: #16794c;
+      --er: #b3261e;
+      --cd: #10151f;
+      --ct: #d6e2f5;
+      --ch: #fff3bf;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px)
+    }
+
+    @media(prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0f141c;
+        --card: #18202c;
+        --tx: #e6ebf3;
+        --mu: #97a4b7;
+        --ac: #7c9bff;
+        --bd: #2b3646;
+        --ok: #5fd39b;
+        --er: #ff8a80;
+        --cd: #0a0e14;
+        --ct: #d6e2f5;
+        --ch: #4a4220
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0f141c;
+      --card: #18202c;
+      --tx: #e6ebf3;
+      --mu: #97a4b7;
+      --ac: #7c9bff;
+      --bd: #2b3646;
+      --ok: #5fd39b;
+      --er: #ff8a80;
+      --cd: #0a0e14;
+      --ct: #d6e2f5;
+      --ch: #4a4220
+    }
+
+    html {
+      scroll-padding-top: env(safe-area-inset-top, 0px)
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--tx);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif
+    }
+
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--bd);
+      position: sticky;
+      top: env(safe-area-inset-top, 0px);
+      z-index: 5;
+      padding: 8px 12px
+    }
+
+    header b {
+      font-size: 17px
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px
+    }
+
+    button,
+    select {
+      font: inherit;
+      border: 1px solid var(--bd);
+      background: var(--card);
+      color: var(--tx);
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer
+    }
+
+    button.on,
+    button.p {
+      background: var(--ac);
+      color: #fff;
+      border-color: var(--ac)
+    }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 16px 12px 40px
+    }
+
+    .hid {
+      display: none
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 14px;
+      margin: 0 0 12px
+    }
+
+    h2 {
+      margin: .2em 0 .5em
+    }
+
+    h3 {
+      margin: .2em 0
+    }
+
+    .mu {
+      color: var(--mu);
+      font-size: 14px
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px
+    }
+
+    .badge {
+      background: var(--ac);
+      color: #fff;
+      border-radius: 99px;
+      padding: 1px 9px;
+      font-size: 12px
+    }
+
+    textarea,
+    input[type=text] {
+      width: 100%;
+      font: 14px/1.45 ui-monospace, Menlo, Consolas, monospace;
+      background: var(--card);
+      color: var(--tx);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 8px
+    }
+
+    textarea {
+      min-height: 300px;
+      tab-size: 2
+    }
+
+    #con {
+      background: var(--cd);
+      color: var(--ct);
+      font: 14px ui-monospace, Menlo, Consolas, monospace;
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 90px;
+      max-height: 240px;
+      overflow: auto
+    }
+
+    #con .e {
+      color: #ff8a80
+    }
+
+    #con .ok {
+      color: #8fe3b4
+    }
+
+    #con .i {
+      color: #9fb4d6
+    }
+
+    .dtw {
+      overflow-x: auto
+    }
+
+    table {
+      border-collapse: collapse;
+      font: 13px ui-monospace, Menlo, Consolas, monospace;
+      width: 100%
+    }
+
+    th,
+    td {
+      border: 1px solid var(--bd);
+      padding: 4px 8px;
+      text-align: left;
+      white-space: nowrap
+    }
+
+    th {
+      background: var(--bg)
+    }
+
+    td.ch {
+      background: var(--ch);
+      font-weight: 700
+    }
+
+    .ok {
+      color: var(--ok)
+    }
+
+    .er {
+      color: var(--er)
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 8px 0
+    }
+
+    .op {
+      display: block;
+      width: 100%;
+      text-align: left;
+      margin: 4px 0
+    }
+
+    .op.g {
+      border-color: var(--ok);
+      color: var(--ok)
+    }
+
+    .op.b {
+      border-color: var(--er);
+      color: var(--er)
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-top: 8px
+    }
+
+    pre {
+      white-space: pre-wrap;
+      background: var(--bg);
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      overflow-x: auto
+    }
+  </style>
+</head>
+
+<body>
+  <header><b>Sandbox de Pseudocódigo</b></header>
+  <main>
+    <div class="card">
+      <div class="row"><select id="sel"></select></div>
+      <div id="info"></div>
+    </div>
+    <div class="card"><textarea id="code" spellcheck="false"></textarea>
+      <div class="row"><button class="p" onclick="run()">▶ Ejecutar</button><button
+          onclick="$('#con').innerHTML=''">Limpiar consola</button></div>
+      <div id="con"></div>
+      <div id="ask" class="row hid"><b id="ask-l"></b><input type="text" id="ask-i"
+          style="flex:1;min-width:120px"><button class="p" id="ask-b">Enviar</button></div>
+    </div>
+
+    <p class="mu">Recuerda: declaraciones, <code>leer()</code>, <code>imprimir()</code>, asignaciones y
+      <code>hasta que(...)</code> terminan en <code>;</code>. <code>si</code>, <code>mientras</code> y <code>para</code>
+      no.
+    </p>
+  </main>
+  <script>
+    const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+    const esc = s => String(s).replace(/[&<>]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[c]));
+    const EX = [
+      {
+        n: 1, t: 'Área de un rectángulo', en: 'Calcular el área de un rectángulo solicitando el largo y el ancho.', vars: 'largo, ancho, area: flotante',
+        adp: ['largo y ancho', 'multiplicar largo por ancho', 'area del rectángulo'], k: [['largo', 'ancho'], ['multipl', '*', 'area'], ['area']],
+        code: `Algoritmo AreaRectangulo
+{
+// Bloque Declarativo
+flotante largo, ancho, area;
+// Bloque de Instrucciones
+imprimir("Ingrese el largo:");
+leer(largo);
+imprimir("Ingrese el ancho:");
+leer(ancho);
+area = largo * ancho;
+imprimir("El area es:", area);
+}`},
+      {
+        n: 2, t: 'Control de temperatura', en: 'Solicitar una temperatura: menor de 18 es baja; de 18 a 25 normal; mayor de 25 alta. Mostrar el estado.', vars: 'temperatura: flotante · estado: cadena',
+        adp: ['temperatura', 'determinar si es baja, normal o alta', 'estado de la temperatura'], k: [['temperatura'], ['baja', 'normal', 'alta', 'determin', 'compar'], ['estado']],
+        code: `Algoritmo ControlTemperatura
+{
+// Bloque Declarativo
+flotante temperatura;
+cadena estado;
+// Bloque de Instrucciones
+imprimir("Ingrese la temperatura:");
+leer(temperatura);
+si(temperatura < 18)
+{ estado = "Temperatura baja"; }
+de otro modo si(temperatura <= 25)
+{ estado = "Temperatura normal"; }
+de otro modo
+{ estado = "Temperatura alta"; }
+imprimir("Estado:", estado);
+}`},
+      {
+        n: 3, t: 'Suma de 1 hasta n', en: 'Sumar los números enteros desde 1 hasta un n ingresado por el usuario.', vars: 'n, i, suma: entero',
+        adp: ['n (limite)', 'acumular i en suma mientras i <= n', 'suma total'], k: [['n', 'limite', 'numero'], ['acum', 'suma', 'repet', 'mientras'], ['suma', 'total']],
+        code: `Algoritmo SumaHastaN
+{
+entero n, i, suma;
+imprimir("Ingrese n:");
+leer(n);
+i = 1;
+suma = 0;
+mientras(i <= n)
+{
+suma = suma + i;
+i = i + 1;
+}
+imprimir("La suma es:", suma);
+}`},
+      {
+        n: 4, t: 'Tabla de multiplicar', en: 'Mostrar la tabla de multiplicar del 1 al 5 de un número ingresado.', vars: 'num, i, r: entero',
+        adp: ['numero', 'multiplicar num por i, de 1 a 5', 'cada linea de la tabla'], k: [['num'], ['multipl', 'para', 'repet', '*'], ['tabla', 'resultado', 'linea', 'producto']],
+        code: `Algoritmo TablaMultiplicar
+{
+entero num, i, r;
+imprimir("Ingrese un numero:");
+leer(num);
+para(i = 1; i <= 5; i = i + 1)
+{
+r = num * i;
+imprimir(num, "x", i, "=", r);
+}
+}`}];
+    const S = {i: 0, h: 0, lv: 1, ql: 1, C: null};
+    /* ---------- Parser ---------- */
+    function parse(src) {
+      const it = []; src.split('\n').forEach((l, i) => {
+        l = l.replace(/[“”]/g, '"').replace(/\/\/.*$/, ''); l.split(/([{}])/).forEach(x => {
+          x = x.trim(); if (!x) return; if (x == '{' || x == '}') {it.push({s: x, l: i + 1}); return }
+          let c = '', q = 0, d = 0; for (const ch of x) {if (ch == '"') q = !q; else if (!q) {if (ch == '(') d++; else if (ch == ')') d--} c += ch; if (ch == ';' && !q && !d) {it.push({s: c.trim(), l: i + 1}); c = ''} }
+          if (c.trim()) it.push({s: c.trim(), l: i + 1})
+        })
+      });
+      let p = 0; const err = (m, i) => {throw new Error('Línea ' + (i ? i.l : '?') + ': ' + m)};
+      const open = () => {if (it[p] && it[p].s == '{') p++; else err('se esperaba {', it[p] || it[p - 1])};
+      const args = s => {const o = []; let c = '', q = 0, d = 0; for (const ch of s) {if (ch == '"') q = !q; if (!q) {if (ch == '(') d++; if (ch == ')') d--} if (ch == ',' && !q && !d) {o.push(c.trim()); c = ''} else c += ch} o.push(c.trim()); return o};
+      const block = () => {const o = []; while (p < it.length) {if (it[p].s == '}') {p++; return o} o.push(stmt())} return o};
+      const asg = (s, i) => {const m = s.trim().match(/^([A-Za-z_]\w*)\s*=\s*(.+)$/); if (!m) err('asignación inválida: ' + s, i); return {t: 'a', k: m[1], e: m[2], s: s.trim(), l: i.l}};
+      const ifn = (b, c) => {
+        open(); const th = block(); let el = null, i = it[p], m;
+        if (i && (m = i.s.match(/^(?:de otro modo|sino|no)\s+si\s*\((.*)\)$/i))) {p++; el = [ifn({s: i.s, l: i.l}, m[1])]}
+        else if (i && /^(de otro modo|sino|no)$/i.test(i.s)) {p++; open(); el = block()}
+        return {...b, t: 'i', c, th, el}
+      };
+      function stmt() {
+        const i = it[p++], s = i.s.replace(/;$/, ''), b = {s: i.s, l: i.l}; let m;
+        if (/^(int|entero|simple|doble|flotante|carac|caracter|cadena|logica)\s|^(leer|lea|imprimir|imp)\b|^[A-Za-z_]\w*\s*=[^=]/i.test(s) && !/;$/.test(i.s)) err('falta ";" al final de la instrucción', i);
+        if (/^(si|mientras|para)\s*\(/i.test(s) && /;$/.test(i.s)) err('esta estructura no lleva ";" al final', i);
+        if (m = s.match(/^(int|entero|simple|doble|flotante|carac|caracter|cadena|logica)\s+(.+)$/i)) return {...b, t: 'd', ty: m[1].toLowerCase(), n: m[2].split(',').map(x => x.trim())};
+        if (m = s.match(/^(?:leer\s*\((.+)\)|lea\s+(.+))$/i)) return {...b, t: 'r', n: (m[1] || m[2]).split(',').map(x => x.trim())};
+        if (m = s.match(/^(?:imprimir\s*\((.*)\)|imp\s+(.*))$/i)) return {...b, t: 'p', a: args(m[1] || m[2] || '')};
+        if (m = s.match(/^si\s*\((.*)\)$/i)) return ifn(b, m[1]);
+        if (m = s.match(/^mientras\s*\((.*)\)$/i)) {open(); return {...b, t: 'w', c: m[1], b: block()}}
+        if (m = s.match(/^para\s*\((.*);(.*);(.*)\)$/i)) {open(); return {...b, t: 'f', i: asg(m[1], i), c: m[2], st: asg(m[3], i), b: block()}}
+        if (/^repetir$/i.test(s)) {open(); const bd = block(), j = it[p++], q = j && j.s.replace(/;$/, '').match(/^hasta que\s*\((.*)\)$/i); if (!q || !/;$/.test(j.s)) err('falta "hasta que(...);"', j || i); return {...b, t: 'u', c: q[1], b: bd}}
+        if (/^[A-Za-z_]\w*\s*=[^=]/.test(s)) return asg(s, i);
+        err('instrucción no reconocida: ' + i.s, i)
+      }
+      if (!it.length || !/^algoritmo\b/i.test(it[0].s)) err('el programa debe iniciar con "Algoritmo Nombre {"', it[0]);
+      p = 1; open(); return block()
+    }
+    /* ---------- Intérprete (generadores: pausan en leer) ---------- */
+    const T = t => /^(int|entero)$/.test(t) ? 'i' : /^(simple|doble|flotante)$/.test(t) ? 'n' : t == 'logica' ? 'b' : 's';
+    function ev(e, C, c) {
+      let j = e.replace(/\.AND\./gi, '&&').replace(/\.OR\./gi, '||').replace(/\.NOT\./gi, '!').replace(/<>/g, '!=').replace(/\^/g, '**').replace(/\bverdadero\b/gi, 'true').replace(/\bfalso\b/gi, 'false');
+      if (c) j = j.replace(/(^|[^<>!=])=(?!=)/g, '$1==');
+      try {return new Function('v', 'with(v){return(' + j + ')}')(C.v)} catch (x) {const m = /^(\w+) is not defined/.exec(x.message); throw new Error(m ? 'variable "' + m[1] + '" no declarada' : 'expresión inválida: ' + e)}
+    }
+    const chk = (k, C) => {if (!(k in C.v)) throw new Error('variable "' + k + '" no declarada')};
+    function set(k, v, C, inp) {
+      const t = C.ty[k];
+      if (t == 'i' || t == 'n') {if (String(v).trim() === '' || isNaN(v)) throw new Error('"' + v + '" no es un número válido para ' + k); v = Number(v); if (t == 'i') v = Math.trunc(v)}
+      else if (t == 'b') v = inp ? /^(verdadero|true|1)$/i.test(String(v).trim()) : !!v; else v = String(v); C.v[k] = v
+    }
+    function* ex(ns, C) {
+      for (const n of ns) {
+        if (++C.c > 20000) throw new Error('Posible bucle infinito (más de 20000 instrucciones)');
+        try {yield* one(n, C)} catch (e) {if (!/^Línea/.test(e.message)) e.message = 'Línea ' + n.l + ': ' + e.message; throw e}
+      }
+    }
+    const sub = (e, v) => e.replace(/"[^"]*"|[A-Za-z_]\w*/g, m => m[0] == '"' ? m : (m in v && v[m] !== null ? v[m] : m));
+    function lab(ns, p) {
+      ns.forEach((n, i) => {
+        n.N = (p ? p + '.' : '') + (i + 1);
+        if (n.t == 'i') {lab(n.th, n.N); if (n.el) lab(n.el, n.N)}
+        else if (n.b) {if (n.t == 'f') {n.i.N = n.N; n.st.N = n.N + '.1'} lab(n.b, n.N)}
+      }); return ns
+    }
+    function* one(n, C) {
+      const R = o => C.rows.push({N: n.N, mem: {}, ar: '', lg: '', pa: '', ...o}), L = r => '(' + n.c + ')\n(' + sub(n.c, C.v) + ') ' + (r ? 'C' : 'F');
+      switch (n.t) {
+        case 'd': {const a = {}, q = {}; n.n.forEach(k => {C.v[k] = null; C.ty[k] = T(n.ty); if (!C.o.includes(k)) C.o.push(k); a[k] = k; q[k] = '?'}); R({mem: a}); R({N: '', mem: q}); break}
+        case 'r': for (const k of n.n) {chk(k, C); const x = yield {k}; set(k, x, C, 1); C.out('◂ ' + k + ' = ' + x, 'i'); R({mem: {[k]: C.v[k]}, pa: x + ' ↵'})} break;
+        case 'p': {const s = n.a.map(a => ev(a, C)).join(' '); C.out(s); R({pa: s}); break}
+        case 'a': {
+          chk(n.k, C); const old = {...C.v}; set(n.k, ev(n.e, C), C); const rh = n.e.trim();
+          R({mem: {[n.k]: C.v[n.k]}, ar: n.k + '=' + rh + (/"/.test(rh) || /^-?[\d.]+$/.test(rh) ? '' : '\n=' + sub(rh, old) + ' =' + C.v[n.k])}); break
+        }
+        case 'i': {const r = ev(n.c, C, 1); R({lg: L(r)}); yield* ex(r ? n.th : n.el || [], C); break}
+        case 'w': while (1) {const r = ev(n.c, C, 1); R({lg: L(r)}); if (!r) break; yield* ex(n.b, C)} break;
+        case 'f': yield* ex([n.i], C); while (1) {const r = ev(n.c, C, 1); R({lg: L(r)}); if (!r) break; yield* ex(n.b, C); yield* ex([n.st], C)} break;
+        case 'u': while (1) {yield* ex(n.b, C); const r = ev(n.c, C, 1); R({lg: 'hasta que' + L(r)}); if (r) break} break
+      }
+    }
+    function run() {
+      const con = $('#con'); con.innerHTML = ''; $('#ask').classList.add('hid');
+      const C = {v: {}, ty: {}, o: [], rows: [], c: 0, out: (t, c) => {const d = document.createElement('div'); d.textContent = t; if (c) d.className = c; con.append(d); con.scrollTop = 1e9}};
+      S.C = C; let g; try {g = ex(lab(parse($('#code').value), ''), C)} catch (e) {C.out('✖ ' + e.message, 'e'); renderDT(); return }
+      const go = v => {
+        try {
+          const r = g.next(v); if (!r.done) {renderDT(); ask(r.value.k, go); return }
+          C.out('✔ Ejecución finalizada en ' + C.rows.length + ' pasos. Retroalimentación: compara la salida con tu prueba de escritorio.', 'ok')
+        } catch (e) {C.out('✖ ' + e.message + ' — revisa la sintaxis y la declaración de variables.', 'e')} renderDT()
+      }; go()
+    }
+    function ask(k, cb) {
+      $('#ask').classList.remove('hid'); $('#ask-l').textContent = 'Ingrese ' + k + ':'; const i = $('#ask-i'); i.value = ''; i.focus();
+      const f = () => {$('#ask').classList.add('hid'); cb(i.value)}; $('#ask-b').onclick = f; i.onkeydown = e => {if (e.key == 'Enter') f()}
+    }
+    function renderDT() {
+      const C = S.C; let h = '<p class="mu">Sin ejecución todavía.</p>';
+      if (C && C.rows.length) {
+        const nv = C.o.length, x = s => esc(s).replace(/\n/g, '<br>');
+        h = `<table><tr><th colspan="${nv + 5}">ALGORITMO PRINCIPAL</th></tr><tr><th rowspan="2">N<br><i>(instrucción)</i></th><th colspan="${nv + 1}">Memoria <i>(constantes y/o variables)</i></th><th colspan="2">Unidad <i>(condiciones, evaluación de las operaciones, otras)</i></th><th rowspan="2">Pantalla <i>(entrada y/o salida)</i></th></tr><tr><th>C1</th>` + C.o.map((k, j) => '<th>V' + (j + 1) + '</th>').join('') + '<th>Aritmética</th><th>Lógica</th></tr>';
+        C.rows.forEach(r => {h += '<tr><td>' + r.N + '</td><td></td>' + C.o.map(k => '<td>' + (k in r.mem ? x(r.mem[k]) : '') + '</td>').join('') + '<td>' + x(r.ar) + '</td><td>' + x(r.lg) + '</td><td>' + x(r.pa) + '</td></tr>'}); h += '</table>'
+      }
+      $$('.dt').forEach(d => d.innerHTML = h)
+    }
+    $('#sel').innerHTML = EX.map((e, i) => `<option value="${i}">Nivel ${e.n} · ${e.t}</option>`).join('');
+    function load(i) {$('#code').value = EX[i].code; $('#con').innerHTML = ''; S.C = null; renderDT(); $('#info').innerHTML = `<b>Enunciado:</b> ${esc(EX[i].en)}<br><b>Variables:</b> ${esc(EX[i].vars)}`}
+    $('#sel').onchange = e => load(+e.target.value); load(0);</script>
+</body>
+
+</html>
