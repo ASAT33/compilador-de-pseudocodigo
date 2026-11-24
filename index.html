@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sandbox de Pseudocódigo</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1b2430;--mu:#5d6b7c;--ac:#2f5bea;--bd:#d9dfe9;--ok:#16794c;--cd:#10151f;--ct:#d6e2f5;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root{--bg:#0f141c;--card:#18202c;--tx:#e6ebf3;--mu:#97a4b7;--ac:#7c9bff;--bd:#2b3646;--ok:#5fd39b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--bd);padding:10px 14px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+main{max-width:1500px;margin:0 auto;padding:16px 12px 40px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin:0 0 12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.mu{color:var(--mu);font-size:14px}.hid{display:none}
+button,select{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:6px 12px;cursor:pointer}
+button.p{background:var(--ac);border-color:var(--ac);color:#fff}
+textarea,input[type=text]{width:100%;font:14px/1.45 ui-monospace,Menlo,Consolas,monospace;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px}
+textarea{min-height:320px;tab-size:2}
+.ed{display:flex;border:1px solid var(--bd);border-radius:8px;overflow:hidden;background:var(--card)}
+#ln{flex:none;min-width:3.4em;padding:8px 8px 26px 6px;text-align:right;overflow:hidden;color:var(--mu);background:var(--bg);border-right:1px solid var(--bd);font:14px/21px ui-monospace,Menlo,Consolas,monospace;user-select:none}
+#ln .err{background:#ff8a80;color:#000;border-radius:3px}
+#code{flex:1;min-width:0;border:0;border-radius:0;line-height:21px;white-space:pre;overflow:auto;resize:vertical}
+#con{background:var(--cd);color:var(--ct);font:14px ui-monospace,Menlo,Consolas,monospace;border-radius:8px;padding:10px;min-height:90px;max-height:240px;overflow:auto}
+#con .e{color:#ff8a80}#con .ok{color:#8fe3b4}#con .i{color:#9fb4d6}
+.dtw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font:13px ui-monospace,Menlo,Consolas,monospace}
+th,td{border:1px solid var(--bd);padding:4px 8px;text-align:left;white-space:nowrap}th{background:var(--bg)}
+table.dead,table.dead td,table.dead th{text-decoration:line-through;opacity:.65}
+</style>
+</head>
+<body>
+<header><b>🧩 Sandbox de Pseudocódigo</b></header>
+<main>
+  <div class="card">
+    <div class="row"><select id="sel"></select></div>
+    <div id="info"></div>
+  </div>
+
+  <div class="card">
+    <div class="ed"><div id="ln"></div><textarea id="code" spellcheck="false" wrap="off"></textarea></div>
+    <div class="row">
+      <button class="p" onclick="run()">▶ Ejecutar</button>
+      <button onclick="$('#con').innerHTML=''">Limpiar consola</button>
+    </div>
+    <div id="con"></div>
+    <div id="ask" class="row hid">
+      <b id="ask-l"></b>
+      <input type="text" id="ask-i" style="flex:1;min-width:120px">
+      <button class="p" id="ask-b">Enviar</button>
+    </div>
+  </div>
+
+  <div class="card"><h3>Prueba de escritorio</h3><div class="dtw dt"></div></div>
+
+  <p class="mu">
+    Terminan en <code>;</code>: declaraciones, <code>leer()</code>, <code>imprimir()</code>, asignaciones, llamadas, <code>retornar</code> y <code>hasta que(...)</code>.
+    Los argumentos se separan con <code>,</code> y las cadenas se concatenan con <code>+</code>.<br>
+    Lógicos: <code>Y</code> <code>&amp;&amp;</code> <code>and</code> <code>.AND.</code> · <code>O</code> <code>||</code> <code>or</code> <code>.OR.</code> · <code>!</code> <code>.NOT.</code><br>
+    Relacionales: <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code> <code>==</code> (igual) <code>!=</code> (distinto de).
+  </p>
+</main>
+
+<script>
+/* ===== utilidades ===== */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const S = { C: null };   // última ejecución (para la prueba de escritorio)
+
+/* ===== ejercicios de ejemplo ===== */
+const EX=[
+{n:1,t:'Área de un rectángulo',en:'Calcular el área de un rectángulo solicitando el largo y el ancho.',vars:'largo, ancho, area: flotante',
+adp:['largo y ancho','multiplicar largo por ancho','area del rectángulo'],k:[['largo','ancho'],['multipl','*','area'],['area']],
+code:`Algoritmo AreaRectangulo
+{
+// Bloque Declarativo
+flotante largo, ancho, area;
+// Bloque de Instrucciones
+imprimir("Ingrese el largo:");
+leer(largo);
+imprimir("Ingrese el ancho:");
+leer(ancho);
+area = largo * ancho;
+imprimir("El area es: ", area);
+}`},
+{n:2,t:'Control de temperatura',en:'Solicitar una temperatura: menor de 18 es baja; de 18 a 25 normal; mayor de 25 alta. Mostrar el estado.',vars:'temperatura: flotante · estado: cadena',
+adp:['temperatura','determinar si es baja, normal o alta','estado de la temperatura'],k:[['temperatura'],['baja','normal','alta','determin','compar'],['estado']],
+code:`Algoritmo ControlTemperatura
+{
+// Bloque Declarativo
+flotante temperatura;
+cadena estado;
+// Bloque de Instrucciones
+imprimir("Ingrese la temperatura:");
+leer(temperatura);
+si(temperatura < 18)
+{ estado = "Temperatura baja"; }
+de otro modo si(temperatura <= 25)
+{ estado = "Temperatura normal"; }
+de otro modo
+{ estado = "Temperatura alta"; }
+imprimir("Estado: ", estado);
+}`},
+{n:3,t:'Suma de 1 hasta n',en:'Sumar los números enteros desde 1 hasta un n ingresado por el usuario.',vars:'n, i, suma: entero',
+adp:['n (limite)','acumular i en suma mientras i <= n','suma total'],k:[['n','limite','numero'],['acum','suma','repet','mientras'],['suma','total']],
+code:`Algoritmo SumaHastaN
+{
+entero n, i, suma;
+imprimir("Ingrese n:");
+leer(n);
+i = 1;
+suma = 0;
+mientras(i <= n)
+{
+suma = suma + i;
+i = i + 1;
+}
+imprimir("La suma es: ", suma);
+}`},
+{n:4,t:'Tabla de multiplicar',en:'Mostrar la tabla de multiplicar del 1 al 5 de un número ingresado.',vars:'num, i, r: entero',
+adp:['numero','multiplicar num por i, de 1 a 5','cada linea de la tabla'],k:[['num'],['multipl','para','repet','*'],['tabla','resultado','linea','producto']],
+code:`Algoritmo TablaMultiplicar
+{
+entero num, i, r;
+imprimir("Ingrese un numero:");
+leer(num);
+para(i = 1; i <= 5; i = i + 1)
+{
+r = num * i;
+imprimir(num, " x ", i, " = ", r);
+}
+}`},
+{n:3,t:'Arreglo de notas y promedio (función)',en:'Leer 3 notas en un arreglo y calcular el promedio mediante una función.',vars:'notas[3], i: entero · pro: flotante · función: total, nota: entero, prom: flotante',
+adp:['3 notas','sumar las notas con un acumulador y dividir entre la cantidad (función)','el promedio'],k:[['nota'],['sum','acum','promedio','dividi','funcion'],['promedio']],
+code:`Algoritmo Notas
+{
+entero notas[3], i;
+flotante pro;
+imprimir("Ingrese sus notas");
+para(i = 0; i < 3; i++)
+{
+leer(notas[i]);
+}
+pro = calcularNotas(notas);
+imprimir("El promedio es: ", pro);
+}
+
+flotante calcularNotas(entero notas[3])
+{
+entero i, total = 0, nota = 0;
+flotante prom;
+para(i = 0; i < 3; i++)
+{
+total = total + notas[i];
+nota = nota + 1;
+}
+prom = total / nota;
+retornar prom;
+}`},
+{n:4,t:'Función calcularEdad',en:'Pedir el año de nacimiento y calcular la edad mediante una función.',vars:'an, edad: entero · función: nac, ed: entero',
+adp:['año de nacimiento','restar el año actual menos el año de nacimiento (función)','la edad'],k:[['nacimiento','año','nac'],['rest','edad','-'],['edad']],
+code:`Algoritmo Edad
+{
+entero an, edad;
+imprimir("Ingrese año de nacimiento: ");
+leer(an);
+edad = calcularEdad(an);
+imprimir("Su edad es: ", edad);
+}
+
+entero calcularEdad(entero nac)
+{
+entero ed;
+ed = 2026 - nac;
+retornar ed;
+}`},
+{n:3,t:'Suma con centinela (mientras)',en:'Sumar los números que ingrese el usuario hasta que ingrese 0.',vars:'num, suma: entero',
+adp:['cada numero (num)','sumar mientras num sea distinto de 0 (!= 0)','la suma total'],k:[['num','numero'],['sum','acum','mientras','distinto'],['suma','total']],
+code:`Algoritmo SumaCentinela
+{
+entero num, suma;
+suma = 0;
+imprimir("Ingrese un numero (0 para terminar): ");
+leer(num);
+mientras(num != 0)
+{
+suma = suma + num;
+imprimir("Ingrese un numero (0 para terminar): ");
+leer(num);
+}
+imprimir("La suma total es: ", suma);
+}`},
+{n:3,t:'Validar edad (repetir / hasta que)',en:'Pedir la edad y repetir la pregunta hasta que esté entre 1 y 120.',vars:'edad: entero',
+adp:['la edad','repetir la pregunta hasta que la edad este entre 1 y 120','mensaje de error o edad registrada'],k:[['edad'],['repet','valid','rango','entre','hasta'],['edad','invalid','error']],
+code:`Algoritmo ValidarEdad
+{
+entero edad;
+repetir
+{
+imprimir("Ingrese su edad (1 a 120): ");
+leer(edad);
+si(edad < 1 .OR. edad > 120)
+{
+imprimir("Edad invalida, intente de nuevo");
+}
+}
+hasta que(edad >= 1 .AND. edad <= 120);
+imprimir("Edad registrada: ", edad);
+}`},
+{n:4,t:'Función dentro de un ciclo',en:'Calcular con una función el cuadrado de los números del 1 al 3.',vars:'i, r: entero · función: n, res: entero',
+adp:['los numeros del 1 al 3','elevar al cuadrado cada numero (funcion)','el cuadrado de cada numero'],k:[['1','3','numero'],['cuadrado','multipl','*','funcion'],['cuadrado']],
+code:`Algoritmo Cuadrados
+{
+entero i, r;
+para(i = 1; i <= 3; i++)
+{
+r = cuadrado(i);
+imprimir("El cuadrado de ", i, " es: ", r);
+}
+}
+
+entero cuadrado(entero n)
+{
+entero res;
+res = n * n;
+retornar res;
+}`},
+{n:4,t:'Arreglo dentro de una función',en:'Pedir un valor inicial y, con una función que crea su propio arreglo de 5 posiciones (ini, ini+1, ...), devolver la suma de la serie.',vars:'ini, total: entero · función: ini, v[5], i, suma: entero',
+adp:['el valor inicial (ini)','llenar un arreglo con ini, ini+1, ... y sumarlo (funcion)','la suma de la serie'],k:[['ini','inicial','numero'],['arreglo','llen','sum','serie','funcion'],['suma']],
+code:`Algoritmo Serie
+{
+entero ini, total;
+imprimir("Ingrese el valor inicial: ");
+leer(ini);
+total = sumarSerie(ini);
+imprimir("La suma de la serie es: ", total);
+}
+
+entero sumarSerie(entero ini)
+{
+entero v[5], i, suma = 0;
+para(i = 0; i < 5; i++)
+{
+v[i] = ini + i;
+suma = suma + v[i];
+}
+retornar suma;
+}`}
+];
+
+/* =====================================================================
+   1. ANALIZADOR  (texto -> { main, funcs })
+   ===================================================================== */
+const TIPOS = 'int|entero|simple|doble|flotante|carac|caracter|cadena|logica';
+const LV = '[A-Za-z_]\\w*(?:\\s*\\[[^\\]]+\\])*';          // x, v[i], m[i][j]
+const PALABRA_OP = /^(AND|and|Y|OR|or|O|NOT|not)$/;         // operadores escritos con letras
+
+/** Divide por comas ignorando las que están dentro de comillas, () [] {} */
+function dividirArgs(texto) {
+  const out = [];
+  let acum = '', comillas = false, prof = 0;
+  for (const ch of texto) {
+    if (ch === '"') comillas = !comillas;
+    if (!comillas) {
+      if ('([{'.includes(ch)) prof++;
+      if (')]}'.includes(ch)) prof--;
+    }
+    if (ch === ',' && !comillas && !prof) { out.push(acum.trim()); acum = ''; }
+    else acum += ch;
+  }
+  out.push(acum.trim());
+  return out;
+}
+
+/** Convierte el código en una lista de items {s: texto, l: nº de línea}.
+    Separa llaves y sentencias terminadas en ';' (varias por línea). */
+function tokenizar(src) {
+  const items = [];
+  const restaurar = s => s.replace(/[\u0001\u0003]/g, '{').replace(/[\u0002\u0004]/g, '}');
+  src.split('\n').forEach((linea, i) => {
+    const nl = i + 1;
+    linea = linea.replace(/[“”]/g, '"').replace(/\/\/.*$/, '');
+    // protege las llaves de los inicializadores:  = {1,2,3}
+    linea = linea.replace(/=\s*\{((?:[^{}]|\{[^{}]*\})*)\}/g,
+      (m, a) => '=\u0001' + a.replace(/\{/g, '\u0003').replace(/\}/g, '\u0004') + '\u0002');
+    linea.split(/([{}])/).forEach(trozo => {
+      trozo = trozo.trim();
+      if (!trozo) return;
+      if (trozo === '{' || trozo === '}') { items.push({ s: trozo, l: nl }); return; }
+      let acum = '', comillas = false, prof = 0;
+      for (const ch of trozo) {
+        if (ch === '"') comillas = !comillas;
+        else if (!comillas) { if (ch === '(') prof++; else if (ch === ')') prof--; }
+        acum += ch;
+        if (ch === ';' && !comillas && !prof) {
+          if (acum.trim() !== ';') items.push({ s: restaurar(acum.trim()), l: nl });
+          acum = '';
+        }
+      }
+      if (acum.trim()) items.push({ s: restaurar(acum.trim()), l: nl });
+    });
+  });
+  return items;
+}
+
+function parse(src) {
+  const it = tokenizar(src);
+  let p = 0;
+  const err = (msg, item) => { throw new Error('Línea ' + (item ? item.l : '?') + ': ' + msg); };
+  const abrir = () => { if (it[p] && it[p].s === '{') p++; else err('se esperaba {', it[p] || it[p - 1]); };
+
+  /** Detecta dos operandos seguidos sin operador (o sin coma si esArg). */
+  function revisarExpr(e, item, esArg) {
+    if ((e.match(/"/g) || []).length % 2) err('comillas sin cerrar', item);
+    const toks = e.match(/"[^"]*"|\d+(?:\.\d+)?|[A-Za-z_]\w*|\.(?:AND|OR|NOT)\.|[()\[\]]|[^\s\w"()\[\]]+/gi) || [];
+    let prevValor = false;
+    for (const t of toks) {
+      const valor = /^["\d]|^[A-Za-z_]/.test(t) && !PALABRA_OP.test(t);
+      if (prevValor && valor)
+        err(esArg ? 'falta una coma entre argumentos (o un + para concatenar) cerca de: ' + t
+                  : 'falta un operador cerca de: ' + t, item);
+      prevValor = valor || t === ')' || t === ']';
+    }
+  }
+
+  // ¿la sentencia necesita ';'?
+  const NECESITA_PUNTOYCOMA = new RegExp(
+    '^(' + TIPOS + ')\\s|^(leer|lea|imprimir|imp|retornar)\\b|^' + LV +
+    '\\s*(=(?!=)|[+\\-*/]=|\\+\\+$|--$)|^[A-Za-z_]\\w*\\s*\\(', 'i');
+  const ES_ASIGNACION = new RegExp('^' + LV + '\\s*(=(?!=)|[+\\-*/]=|\\+\\+$|--$)');
+
+  /** Asignaciones: x = e | x++ | x-- | x += e ... */
+  function asignacion(texto, item) {
+    texto = texto.trim();
+    let m, k, e;
+    if (m = texto.match(new RegExp('^(' + LV + ')\\s*(\\+\\+|--)$'))) { k = m[1]; e = k + (m[2] === '++' ? '+1' : '-1'); }
+    else if (m = texto.match(new RegExp('^(' + LV + ')\\s*([+\\-*/])=\\s*(.+)$'))) { k = m[1]; e = k + m[2] + '(' + m[3] + ')'; }
+    else if (m = texto.match(new RegExp('^(' + LV + ')\\s*=(?!=)\\s*(.+)$'))) { k = m[1]; e = m[2]; }
+    else err('asignación inválida: ' + texto, item);
+    revisarExpr(e, item, false);
+    return { t: 'a', k: k.replace(/\s+/g, ''), e, s: texto, l: item.l };
+  }
+
+  function bloque() {
+    const out = [];
+    while (p < it.length) {
+      if (it[p].s === '}') { p++; return out; }
+      out.push(sentencia());
+    }
+    return out;
+  }
+
+  /** si(...) { } de otro modo si(...) { } de otro modo { } */
+  function nodoSi(base, cond) {
+    revisarExpr(cond, base, false);
+    abrir();
+    const th = bloque();
+    let el = null, sig = it[p], m;
+    if (sig && (m = sig.s.match(/^(?:de otro modo|sino|no)\s+si\s*\((.*)\)$/i))) {
+      p++;
+      el = [nodoSi({ s: sig.s, l: sig.l }, m[1])];
+    } else if (sig && /^(de otro modo|sino|no)$/i.test(sig.s)) {
+      p++; abrir(); el = bloque();
+    }
+    return { ...base, t: 'i', c: cond, th, el };
+  }
+
+  function sentencia() {
+    const item = it[p++];
+    const s = item.s.replace(/;$/, '');
+    const base = { s: item.s, l: item.l };
+    let m;
+    const esControl = /^(si|mientras|para)\s*\(/i.test(s);
+    if (esControl && /;$/.test(item.s)) err('esta estructura no lleva ";" al final', item);
+    if (!esControl && NECESITA_PUNTOYCOMA.test(s) && !/;$/.test(item.s)) err('falta ";" al final de la instrucción', item);
+
+    // declaración: entero a, b = 2, v[5] = {1,2,3};
+    if (m = s.match(new RegExp('^(' + TIPOS + ')\\s+(.+)$', 'i'))) {
+      const items = dividirArgs(m[2]).map(x => {
+        x = x.replace(new RegExp('^(' + TIPOS + ')\\s+', 'i'), '');
+        const q = x.match(/^([A-Za-z_]\w*)((?:\s*\[[^\]]*\])*)\s*(?:=\s*([\s\S]+))?$/);
+        if (!q) err('declaración inválida: ' + x, item);
+        return { name: q[1], dims: (q[2].match(/\[([^\]]*)\]/g) || []).map(d => d.slice(1, -1)), init: q[3] || null };
+      });
+      return { ...base, t: 'd', ty: m[1].toLowerCase(), items };
+    }
+    // entrada
+    if (m = s.match(/^(?:leer\s*\((.+)\)|lea\s+(.+))$/i))
+      return { ...base, t: 'r', n: dividirArgs(m[1] || m[2]).map(x => x.replace(/\s+/g, '')) };
+    // salida
+    if (m = s.match(/^(?:imprimir\s*\((.*)\)|imp\s+(.*))$/i)) {
+      const texto = (m[1] || m[2] || '').trim();
+      const a = texto ? dividirArgs(texto) : [];
+      a.forEach(x => {
+        if (!x) err('hay una coma de más (argumento vacío) en imprimir', item);
+        revisarExpr(x, item, true);
+      });
+      return { ...base, t: 'p', a };
+    }
+    // estructuras de control
+    if (m = s.match(/^si\s*\((.*)\)$/i)) return nodoSi(base, m[1]);
+    if (m = s.match(/^mientras\s*\((.*)\)$/i)) {
+      revisarExpr(m[1], item, false); abrir();
+      return { ...base, t: 'w', c: m[1], b: bloque() };
+    }
+    if (m = s.match(/^para\s*\((.*);(.*);(.*)\)$/i)) {
+      revisarExpr(m[2], item, false); abrir();
+      return { ...base, t: 'f', i: asignacion(m[1], item), c: m[2], st: asignacion(m[3], item), b: bloque() };
+    }
+    if (/^repetir$/i.test(s)) {
+      abrir();
+      const cuerpo = bloque(), fin = it[p++];
+      const q = fin && fin.s.replace(/;$/, '').match(/^hasta que\s*\((.*)\)$/i);
+      if (!q || !/;$/.test(fin.s)) err('falta "hasta que(...);"', fin || item);
+      revisarExpr(q[1], fin, false);
+      return { ...base, t: 'u', c: q[1], b: cuerpo };
+    }
+    // retornar, asignación, llamada
+    if (m = s.match(/^retornar(?:\s+(.+))?$/i)) {
+      if (m[1]) revisarExpr(m[1], item, false);
+      return { ...base, t: 'x', e: m[1] || null };
+    }
+    if (ES_ASIGNACION.test(s)) return asignacion(s, item);
+    if (m = s.match(/^([A-Za-z_]\w*)\s*\((.*)\)$/)) {
+      const a = m[2].trim() ? dividirArgs(m[2]) : [];
+      a.forEach(x => {
+        if (!x) err('hay una coma de más en los argumentos', item);
+        revisarExpr(x, item, true);
+      });
+      return { ...base, t: 'c', e: s };
+    }
+    err('instrucción no reconocida: ' + item.s, item);
+  }
+
+  // nivel superior: Algoritmo + funciones
+  const funcs = [];
+  let main = null, m;
+  const ENCABEZADO_FN = new RegExp('^(' + TIPOS + '|vacio|void)\\s+([A-Za-z_]\\w*)\\s*\\((.*)\\)$', 'i');
+  const PARAM = new RegExp('^(' + TIPOS + ')\\s+([A-Za-z_]\\w*)((?:\\s*\\[\\s*\\d*\\s*\\])*)$', 'i');
+  while (p < it.length) {
+    const item = it[p];
+    if (/^algoritmo\b/i.test(item.s)) {
+      if (main) err('solo puede haber un Algoritmo', item);
+      p++; abrir(); main = bloque();
+    } else if (m = item.s.match(ENCABEZADO_FN)) {
+      p++;
+      if (funcs.some(f => f.name === m[2])) err('la función "' + m[2] + '" está repetida', item);
+      const params = m[3].trim() ? dividirArgs(m[3]).map(x => {
+        const q = x.match(PARAM);
+        if (!q) err('parámetro inválido: ' + x, item);
+        return { ty: q[1].toLowerCase(), n: q[2], dims: q[3] };
+      }) : [];
+      abrir();
+      funcs.push({ name: m[2], ty: m[1].toLowerCase(), p: params, b: bloque() });
+    } else err('se esperaba "Algoritmo Nombre {" o la definición de una función', item);
+  }
+  if (!main) err('el programa debe tener "Algoritmo Nombre {"', it[0]);
+  return { main, funcs };
+}
+
+/** Los rótulos se muestran con 3 niveles como máximo (ej. 1.1.2) */
+const limitar = s => String(s).split('.').slice(0, 3).join('.');
+
+/** Numera las instrucciones: 1, 2, 3 ... y subíndices 2.1, 4.1.1 dentro de estructuras */
+function lab(ns, pre) {
+  ns.forEach((n, i) => {
+    n.N = (pre ? pre + '.' : '') + (i + 1);
+    if (n.t === 'i') { lab(n.th, n.N); if (n.el) lab(n.el, n.N); }
+    else if (n.b) {
+      if (n.t === 'f') { n.i.N = n.N; n.st.N = n.N + '.1'; }
+      lab(n.b, n.N);
+    }
+  });
+  return ns;
+}
+
+/* =====================================================================
+   2. INTÉRPRETE  (generadores: se pausan en leer)
+   ===================================================================== */
+const kind = t => /^(int|entero)$/.test(t) ? 'i'
+                : /^(simple|doble|flotante)$/.test(t) ? 'n'
+                : t === 'logica' ? 'b'
+                : /^(vacio|void)$/.test(t) ? 'v' : 's';
+
+const cl = v => Array.isArray(v) ? Array.from(v, x => cl(x)) : v;           // copia profunda
+const fmt = v => v == null ? '?'
+  : Array.isArray(v) ? '[' + v.map(x => fmt(x)).join(',') + ']'
+  : typeof v === 'number' ? String(+v.toFixed(10))
+  : typeof v === 'boolean' ? (v ? 'verdadero' : 'falso') : String(v);
+
+// Arreglos con control de rango
+const rango = (t, k) => {
+  if (typeof k === 'string' && /^-?\d+$/.test(k) && (+k < 0 || +k >= t.length))
+    throw new Error('índice ' + k + ' fuera de rango (tamaño ' + t.length + ')');
+};
+const mk = ds => new Proxy(
+  Array.from({ length: ds[0] }, () => ds.length > 1 ? mk(ds.slice(1)) : null),
+  { get(t, k, r) { rango(t, k); return Reflect.get(t, k, r); },
+    set(t, k, v) { rango(t, k); t[k] = v; return true; } });
+
+/** Reemplaza variables por sus valores (para mostrar el cálculo en la prueba de escritorio) */
+const sub = (e, v) => e.replace(/"[^"]*"|([A-Za-z_]\w*)((?:\s*\[[^\]]+\])*)/g, (m, n, ix) => {
+  if (m[0] === '"' || !(n in v) || (v[n] === null && !ix)) return m;
+  try { return fmt(ix ? ev(n + ix, { v }) : v[n]); } catch (x) { return m; }
+});
+
+/** Evalúa una expresión. Operadores: && Y and .AND. | || O or .OR. | ! not .NOT. | == != <= >= */
+function ev(e, C, esCondicion) {
+  const convertir = x => {
+    x = x.replace(/\.AND\./gi, '&&').replace(/\.OR\./gi, '||').replace(/\.NOT\./gi, '!')
+         .replace(/\b(AND|and|Y|OR|or|O|NOT|not)\b/g, m =>
+            m in C.v ? m : /^(AND|and|Y)$/.test(m) ? '&&' : /^(OR|or|O)$/.test(m) ? '||' : '!')
+         .replace(/\^/g, '**').replace(/\bverdadero\b/gi, 'true').replace(/\bfalso\b/gi, 'false');
+    return esCondicion ? x.replace(/(^|[^<>!=])=(?!=)/g, '$1==') : x;
+  };
+  const js = e.split(/("[^"]*")/).map((x, i) => i % 2 ? x : convertir(x)).join('');
+  try {
+    return new Function('v', 'with(v){return(' + js + ')}')(C.v);
+  } catch (x) {
+    if (/fuera de rango/.test(x.message)) throw x;
+    const m = /^(\w+) is not defined/.exec(x.message);
+    throw new Error(m ? 'variable "' + m[1] + '" no declarada' : 'expresión inválida: ' + e);
+  }
+}
+
+const chk = (k, C) => { if (!(k in C.v)) throw new Error('variable "' + k + '" no declarada'); };
+
+function coerce(t, v, esEntrada, k) {
+  if (t === 'i' || t === 'n') {
+    if (typeof v === 'boolean' || v == null || String(v).trim() === '' || isNaN(v))
+      throw new Error('"' + v + '" no es un número válido para ' + k);
+    v = Number(v);
+    if (t === 'i') v = Math.trunc(v);
+  } else if (t === 'b') v = esEntrada ? /^(verdadero|true|1)$/i.test(String(v).trim()) : !!v;
+  else v = String(v);
+  return v;
+}
+
+/** x = valor   |   v[i] = valor   |   m[i][j] = valor */
+function assignTo(destino, v, C, esEntrada) {
+  const m = destino.trim().match(/^([A-Za-z_]\w*)\s*((?:\[.+\]\s*)*)$/);
+  if (!m) throw new Error('destino inválido: ' + destino);
+  const k = m[1];
+  chk(k, C);
+  if (m[2]) {
+    if (!Array.isArray(C.v[k])) throw new Error('"' + k + '" no es un arreglo');
+    v = coerce(C.ty[k], v, esEntrada, destino);
+    try { new Function('__v', '__x', 'with(__v){' + destino + '=__x}')(C.v, v); }
+    catch (x) {
+      const q = /^(\w+) is not defined/.exec(x.message);
+      throw q ? new Error('variable "' + q[1] + '" no declarada') : x;
+    }
+  } else {
+    if (Array.isArray(C.v[k])) throw new Error('"' + k + '" es un arreglo: usa ' + k + '[índice]');
+    C.v[k] = coerce(C.ty[k], v, esEntrada, k);
+  }
+}
+
+function fill(a, lista, tipo, k) {
+  if (!Array.isArray(lista)) throw new Error('el arreglo ' + k + ' se inicializa con {valores}');
+  if (lista.length > a.length) throw new Error('demasiados valores iniciales para ' + k + ' (tamaño ' + a.length + ')');
+  lista.forEach((x, j) => { if (Array.isArray(a[j])) fill(a[j], x, tipo, k); else a[j] = coerce(tipo, x, false, k); });
+}
+
+/** Argumento de una llamada: un arreglo se pasa completo (v  o  v[tamaño]) */
+function* arg(a, C) {
+  const m = a.match(/^([A-Za-z_]\w*)\s*(?:\[\s*(\d+)\s*\])?$/);
+  if (m && Array.isArray(C.v[m[1]]) && (m[2] === undefined || +m[2] === C.v[m[1]].length)) return C.v[m[1]];
+  return yield* evg(a, C);
+}
+
+/** Evalúa una expresión resolviendo antes las llamadas a funciones del usuario */
+function* evg(e, C, esCondicion) {
+  for (let g = 0; g < 200; g++) {
+    const mask = e.replace(/"[^"]*"/g, s => '_'.repeat(s.length));
+    const re = /\b([A-Za-z_]\w*)\s*\(/g;
+    let m, hit = null;
+    while (m = re.exec(mask)) { if (C.f[m[1]]) { hit = m; break; } }
+    if (!hit) break;
+    const ini = hit.index + hit[0].length;
+    let prof = 1, j = ini;
+    while (j < mask.length && prof) { if (mask[j] === '(') prof++; else if (mask[j] === ')') prof--; j++; }
+    if (prof) throw new Error('paréntesis sin cerrar en la llamada a ' + hit[1]);
+    const interior = e.slice(ini, j - 1).trim();
+    const valores = [];
+    for (const a of interior ? dividirArgs(interior) : []) valores.push(yield* arg(a, C));
+    const rv = yield* llamarFuncion(hit[1], valores, C);
+    e = e.slice(0, hit.index) + '(' + JSON.stringify(rv) + ')' + e.slice(j);
+  }
+  return ev(e, C, esCondicion);
+}
+
+/** Cada llamada crea su propio cuadro; al retornar se marca como terminado (tachado) */
+function* llamarFuncion(nombre, valores, C) {
+  const f = C.f[nombre];
+  if (valores.length !== f.p.length)
+    throw new Error('"' + nombre + '" espera ' + f.p.length + ' argumento(s) y recibió ' + valores.length);
+  if (++C.depth > 60) throw new Error('demasiadas llamadas anidadas (recursión infinita)');
+  const g = { v: C.v, ty: C.ty, T: C.T, pre: C.pre, curN: C.curN };
+  C.cn = C.cn || {};
+  const nn = C.cn[nombre] = (C.cn[nombre] || 0) + 1;
+  const tabla = { title: 'FUNCIÓN ' + nombre + '(' + f.p.map(q => q.n).join(', ') + ') · llamada ' + nn, fn: nombre, o: [], rows: [], done: false };
+  C.tabs.push(tabla);
+  Object.assign(C, { pre: g.curN, v: {}, ty: {}, T: tabla });   // los rótulos siguen el decimal de la llamada: 5 → 5.1, 5.2 ...
+  const fila = {};
+  f.p.forEach((q, j) => {
+    const k = q.n;
+    C.ty[k] = kind(q.ty);
+    if (!tabla.o.includes(k)) tabla.o.push(k);
+    let v = valores[j];
+    if (q.dims) { if (!Array.isArray(v)) throw new Error('"' + k + '" debe recibir un arreglo'); }
+    else v = coerce(C.ty[k], v, false, k);
+    C.v[k] = v;
+    fila[k] = cl(v);
+  });
+  tabla.rows.push({ N: limitar(g.curN), mem: fila, ar: '', lg: '', pa: '' });
+  C.ret = null;
+  yield* ex(f.b, C);
+  let rv = C.ret ? C.ret.v : undefined;
+  C.ret = null;
+  if (f.ty !== 'vacio' && f.ty !== 'void') {
+    if (rv === undefined) throw new Error('la función "' + nombre + '" no retornó ningún valor');
+    rv = coerce(kind(f.ty), rv, false, nombre);
+  }
+  tabla.done = true;
+  Object.assign(C, g);
+  C.depth--;
+  return rv;
+}
+
+function* ex(nodos, C) {
+  for (const n of nodos) {
+    if (C.ret) return;
+    if (++C.c > 20000) throw new Error('Posible bucle infinito (más de 20000 instrucciones)');
+    C.curN = (C.pre ? C.pre + '.' : '') + n.N;
+    try { yield* one(n, C); }
+    catch (e) {
+      if (!/^Línea/.test(e.message)) e.message = 'Línea ' + n.l + ': ' + e.message;
+      throw e;
+    }
+  }
+}
+
+function* one(n, C) {
+  const rotulo = (C.pre ? C.pre + '.' : '') + n.N;
+  const R = o => C.T.rows.push({ N: limitar(rotulo), mem: {}, ar: '', lg: '', pa: '', ...o });
+  const L = r => '(' + n.c + ')\n(' + sub(n.c, C.v) + ') ' + (r ? 'C' : 'F');
+  switch (n.t) {
+    case 'd': {                                   // declaración
+      const nombres = {}, valores = {};
+      for (const d of n.items) {
+        const k = d.name;
+        C.ty[k] = kind(n.ty);
+        if (!C.T.o.includes(k)) C.T.o.push(k);
+        nombres[k] = k;
+        if (d.dims.length) {
+          const ds = [];
+          for (const x of d.dims) {
+            const z = yield* evg(x, C);
+            if (!(z >= 1) || z % 1) throw new Error('tamaño de arreglo inválido: ' + z);
+            ds.push(z);
+          }
+          C.v[k] = mk(ds);
+          if (d.init != null) fill(C.v[k], ev(d.init.replace(/\{/g, '[').replace(/\}/g, ']'), C), C.ty[k], k);
+        } else {
+          C.v[k] = d.init != null ? coerce(C.ty[k], (yield* evg(d.init, C)), false, k) : null;
+        }
+        valores[k] = cl(C.v[k]);
+      }
+      R({ mem: nombres });
+      R({ N: '', mem: valores });
+      break;
+    }
+    case 'r':                                     // entrada
+      for (const k of n.n) {
+        const base = k.split('[')[0];
+        chk(base, C);
+        let visible = k;
+        try { visible = k.replace(/\[([^\]]+)\]/g, (m, e) => '[' + ev(e, C) + ']'); } catch (x) {}
+        const x = yield { k: visible };
+        assignTo(k, x, C, true);
+        C.out('◂ ' + visible + ' = ' + x, 'i');
+        R({ mem: { [base]: cl(C.v[base]) }, pa: x + ' ↵' });
+      }
+      break;
+    case 'p': {                                   // salida (concatena los argumentos)
+      let s = '';
+      for (const a of n.a) s += fmt(yield* evg(a, C));
+      C.out(s);
+      R({ pa: s });
+      break;
+    }
+    case 'a': {                                   // asignación
+      const antes = { ...C.v };
+      const val = yield* evg(n.e, C);
+      assignTo(n.k, val, C);
+      const base = n.k.split('[')[0], rh = n.e.trim();
+      const hayLlamada = Object.keys(C.f).some(f => new RegExp('\\b' + f + '\\s*\\(').test(rh));
+      const detalle = hayLlamada || /"/.test(rh) || /^-?[\d.]+$/.test(rh) ? '' : '\n=' + sub(rh, antes) + ' =' + fmt(val);
+      R({ mem: { [base]: cl(C.v[base]) }, ar: n.k + '=' + rh + detalle });
+      break;
+    }
+    case 'c': yield* evg(n.e, C); R({ ar: n.e }); break;                       // llamada como instrucción
+    case 'x': {                                   // retornar
+      const v = n.e ? (yield* evg(n.e, C)) : undefined;
+      C.ret = { v };
+      R({ ar: 'retornar ' + (n.e || '') + (n.e ? ' = ' + fmt(v) : '') });
+      break;
+    }
+    case 'i': {                                   // si
+      const r = yield* evg(n.c, C, true);
+      R({ lg: L(r) });
+      yield* ex(r ? n.th : n.el || [], C);
+      break;
+    }
+    case 'w':                                     // mientras
+      while (true) {
+        const r = yield* evg(n.c, C, true);
+        R({ lg: L(r) });
+        if (!r) break;
+        yield* ex(n.b, C);
+        if (C.ret) break;
+      }
+      break;
+    case 'f':                                     // para
+      yield* ex([n.i], C);
+      while (true) {
+        const r = yield* evg(n.c, C, true);
+        R({ lg: L(r) });
+        if (!r) break;
+        yield* ex(n.b, C);
+        if (C.ret) break;
+        yield* ex([n.st], C);
+      }
+      break;
+    case 'u':                                     // repetir ... hasta que
+      while (true) {
+        yield* ex(n.b, C);
+        if (C.ret) break;
+        const r = yield* evg(n.c, C, true);
+        R({ lg: 'hasta que' + L(r) });
+        if (r) break;
+      }
+      break;
+  }
+}
+
+/* =====================================================================
+   3. INTERFAZ: ejecutar, pedir datos y dibujar la prueba de escritorio
+   ===================================================================== */
+function run() {
+  const con = $('#con');
+  con.innerHTML = '';
+  $('#ask').classList.add('hid');
+  const principal = { title: 'ALGORITMO PRINCIPAL', o: [], rows: [] };
+  const C = {
+    v: {}, ty: {}, tabs: [principal], T: principal, f: {}, ret: null, depth: 0, c: 0,
+    out: (texto, clase) => {
+      const d = document.createElement('div');
+      d.textContent = texto;
+      if (clase) d.className = clase;
+      con.append(d);
+      con.scrollTop = 1e9;
+    }
+  };
+  S.C = C;
+  actualizarLineas(0);
+  let gen;
+  try {
+    const P = parse($('#code').value);
+    lab(P.main, '');
+    P.funcs.forEach(f => { lab(f.b, ''); C.f[f.name] = f; });
+    gen = ex(P.main, C);
+  } catch (e) { C.out('✖ ' + e.message, 'e'); marcarError(e); renderDT(); return; }
+
+  const avanzar = valor => {
+    try {
+      const r = gen.next(valor);
+      if (!r.done) { renderDT(); pedirDato(r.value.k, avanzar); return; }
+      const pasos = C.tabs.reduce((a, t) => a + t.rows.length, 0);
+      C.out('✔ Ejecución finalizada en ' + pasos + ' pasos. Retroalimentación: compara la salida con tu prueba de escritorio.', 'ok');
+    } catch (e) {
+      C.out('✖ ' + e.message + ' — revisa la sintaxis y la declaración de variables.', 'e');
+      marcarError(e);
+    }
+    renderDT();
+  };
+  avanzar();
+}
+
+/** Numeración de líneas del editor (marca en rojo la línea con error) */
+function actualizarLineas(marcada) {
+  const n = $('#code').value.split('\n').length;
+  let html = '';
+  for (let i = 1; i <= n; i++) html += '<div' + (i === marcada ? ' class="err"' : '') + '>' + i + '</div>';
+  $('#ln').innerHTML = html;
+  $('#ln').scrollTop = $('#code').scrollTop;
+}
+function marcarError(e) {
+  const m = /^Línea (\d+)/.exec(e.message);
+  actualizarLineas(m ? +m[1] : 0);
+}
+function iniciarEditor() {
+  const c = $('#code');
+  c.addEventListener('input', () => actualizarLineas(0));
+  c.addEventListener('scroll', () => { $('#ln').scrollTop = c.scrollTop; });
+  c.addEventListener('keydown', e => {            // Tab inserta 2 espacios
+    if (e.key !== 'Tab') return;
+    e.preventDefault();
+    c.setRangeText('  ', c.selectionStart, c.selectionEnd, 'end');
+    actualizarLineas(0);
+  });
+}
+
+function pedirDato(nombre, continuar) {
+  $('#ask').classList.remove('hid');
+  $('#ask-l').textContent = 'Ingrese ' + nombre + ':';
+  const input = $('#ask-i');
+  input.value = '';
+  input.focus();
+  const enviar = () => { $('#ask').classList.add('hid'); continuar(input.value); };
+  $('#ask-b').onclick = enviar;
+  input.onkeydown = e => { if (e.key === 'Enter') enviar(); };
+}
+
+function renderDT() {
+  const C = S.C;
+  let html = '<p class="mu">Sin ejecución todavía.</p>';
+  if (C && C.tabs.some(t => t.rows.length)) {
+    const x = s => esc(s).replace(/\n/g, '<br>');
+    html = '';
+    C.tabs.forEach(tb => {
+      if (!tb.rows.length) return;
+      const nv = tb.o.length;
+      html += '<table class="' + (tb.done ? 'dead' : '') + '" style="margin-bottom:14px">'
+        + '<tr><th colspan="' + (nv + 5) + '">' + esc(tb.title) + (tb.done ? ' — retornó: este cuadro ya no existe' : '') + '</th></tr>'
+        + '<tr><th rowspan="2">N<br><i>(instrucción)</i></th>'
+        + '<th colspan="' + (nv + 1) + '">Memoria <i>(constantes y/o variables)</i></th>'
+        + '<th colspan="2">Unidad <i>(condiciones, evaluación de las operaciones, otras)</i></th>'
+        + '<th rowspan="2">Pantalla <i>(entrada y/o salida)</i></th></tr>'
+        + '<tr><th>C1</th>' + tb.o.map((k, j) => '<th>V' + (j + 1) + '</th>').join('') + '<th>Aritmética</th><th>Lógica</th></tr>';
+      tb.rows.forEach(r => {
+        html += '<tr><td>' + esc(r.N) + '</td><td></td>'
+          + tb.o.map(k => '<td>' + (k in r.mem ? x(fmt(r.mem[k])) : '') + '</td>').join('')
+          + '<td>' + x(r.ar) + '</td><td>' + x(r.lg) + '</td><td>' + x(r.pa) + '</td></tr>';
+      });
+      html += '</table>';
+    });
+  }
+  $$('.dt').forEach(d => d.innerHTML = html);
+}
+
+
+/* =====================================================================
+   4. ARRANQUE
+   ===================================================================== */
+function cargar(i) {
+  $('#code').value = EX[i].code;
+  actualizarLineas(0);
+  $('#con').innerHTML = '';
+  S.C = null;
+  renderDT();
+  $('#info').innerHTML = '<b>Enunciado:</b> ' + esc(EX[i].en) + '<br><b>Variables:</b> ' + esc(EX[i].vars);
+}
+$('#sel').innerHTML = EX.map((e, i) => '<option value="' + i + '">Nivel ' + e.n + ' · ' + e.t + '</option>').join('');
+$('#sel').onchange = e => cargar(+e.target.value);
+iniciarEditor();
+cargar(0);
+</script>
+</body>
+</html>
